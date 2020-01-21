@@ -1,0 +1,34 @@
+##Get ForwardingSmtpAddress and ForwardingAddress for all mailboxes:
+#Connect to Exchange online via Powershell:
+$UserCredential = Get-Credential
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $UserCredential -Authentication Basic -AllowRedirection
+Import-PSSession $Session -DisableNameChecking
+
+Start-transcript -Path c:\Forwardings.txt
+$FormatEnumerationLimit =-1
+$list = Get-mailbox -resultsize unlimited
+$forwarding = $list | ?{$_.ForwardingSmtpAddress + $_.ForwardingAddress}
+$forwarding | select PrimarySMTP*, alias, ForwardingSmtpAddress, ForwardingAddress | ft -AutoSize
+Stop-transcript
+
+
+##get all inbox rules where a forwarding is enabled
+# Run the transcript to Connect to Exchange online and get all enabled forwarding inbox rules via Powershell:
+Start-transcript -Path c:\ForwardingInboxRules.txt
+$FormatEnumerationLimit =-1
+$UserCredential = Get-Credential
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $UserCredential -Authentication Basic -AllowRedirection
+Import-PSSession $Session -DisableNameChecking
+$FormatEnumerationLimit =-1
+$list = Get-mailbox -resultsize unlimited
+$i = 0
+$allRules = @()
+foreach($mbx in $list | sort name){
+  Write-Progress -activity "Processing $($mbx.name)" -PercentComplete (($i / $list.count)  * 100) -Status "Please wait..." -CurrentOperation "$([math]::truncate(($i / $list.count)  * 100))% Complete"
+  $i++
+  $allRules += Get-InboxRule -Mailbox $mbx.DistinguishedName | where {$_.enabled -like "true"}
+}
+$external = $allRules | where {$_.RedirectTo -or $_.ForwardTo -or $_.ForwardAsAttachmentTo}
+$out = foreach($rule in $external){if($rule.ForwardTo -ne "$null" -or $rule.ForwardAsAttachmentTo -ne "$null" -or $rule.RedirectTo -ne "$null"){$rule | select MailboxOwnerId, Description, ForwardTo, ForwardAsAttachmentTo, RedirectTo}}
+$out
+stop-transcript

@@ -1,0 +1,17 @@
+#####Set new Domain for All office 365 Groups primarySmtpAddresses:
+#Connect to Exchange online via Powershell:
+$UserCredential = Get-Credential
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $UserCredential -Authentication Basic -AllowRedirection
+Import-PSSession $Session -DisableNameChecking
+
+#Set all mailboxes with your new verified domain:
+$AllOffice365Groups = Get-unifiedgroup -ResultSize Unlimited
+
+Foreach ($O365group in $AllOffice365Groups)
+
+{
+
+$NewAddress = $O365group.Alias + "@domain.ml"
+
+Set-UnifiedGroup -Identity $O365group.Alias -Primarysmtpaddress $NewAddress
+}

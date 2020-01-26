@@ -1,0 +1,22 @@
+#####Add new smtp address for the Office 365 group, set it as primary SMTP address and remove the old PrimarySMTPAddress for a single Office 365 group:
+
+#List PrimarySMTPAddress and all email addresses of Office 365 group:
+Get-unifiedgroup testgroup1 | fl DisplayName, *addresses, Primary*
+
+#To Add new alias:
+Set-UnifiedGroup -Identity testgroup1 -EmailAddresses: @{add="smtp:testgroup2@domain.com"}
+
+#List email addresses of Office 365 group:
+Get-unifiedgroup testgroup1 | fl DisplayName, *addresses, Primary*
+
+#Set the new email address as primary smtp address:
+Set-UnifiedGroup -Identity testgroup1 -primarysmtpaddress testgroup2@domain.com
+
+#Get PrimarySMTPAddress of The Office 365 group:
+Get-unifiedgroup testgroup1 | fl DisplayName, primary*
+
+#To remove the old alias:
+Set-UnifiedGroup -Identity testgroup1 -EmailAddresses: @{remove="smtp:testgroup1@domain.com"}
+
+#List all email addresses of Office 365 group and PrimarySMTPAddress:
+get-unifiedgroup testgroup1 | fl DisplayName, *addresses, Primary*

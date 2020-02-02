@@ -1,0 +1,7 @@
+#Export admin audit logs to csv file:
+Search-AdminAuditLog -StartDate 01/01/2020 -EndDate 02/02/2020 | Export-Csv "C:\Users\user11\Desktop\my Exports\auditlogs.csv"
+
+
+#Export extended Admin Audit Logs to a csv file:
+$a = Search-AdminAuditLog -StartDate 01/01/2020 -EndDate 02/02/2020
+$a | select ObjectModified,Caller,Succeeded,RunDate,CmdletName, @{Expression={$_.CmdletParameters.Name};Label="Parameter Name";},@{Expression={$_.CmdletParameters.Value};Label="Parameter Value";} | Export-Csv "C:\Users\user11\Desktop\my Exports\ExtendedAuditLogs.csv" -NoTypeInformation

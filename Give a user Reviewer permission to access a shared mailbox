@@ -1,0 +1,3 @@
+##Add Reviewer (or Editor ...) permission to "shared@doamin.com"  for user "user@domain.com"
+Add-MailboxFolderPermission shared@doamin.com -User user@domain.com -AccessRights foldervisible
+ForEach($f in (Get-MailboxFolderStatistics "shared@doamin.com" | Where { $_.FolderPath.Contains("/") -eq $True } ) ) { $fname = "shared@domain.com:" + $f.FolderPath.Replace("/","\"); Add-MailboxFolderPermission $fname -User "user@domain.com" -AccessRights Reviewer }

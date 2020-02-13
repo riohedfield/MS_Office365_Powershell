@@ -1,0 +1,11 @@
+#Connect to Exchange online via Powershell:
+$UserCredential = Get-Credential
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $UserCredential -Authentication Basic -AllowRedirection
+Import-PSSession $Session -DisableNameChecking
+
+##Extract signature in html:
+(get-mailboxmessageconfiguration ribo_).SignatureHTML
+
+##Copy the signature to another user mailbox
+$html = (get-mailboxmessageconfiguration User1).SignatureHTML
+Set-mailboxmessageconfiguration "User2" -AutoAddSignature $true -SignatureHtml $html -AutoAddSignatureOnReply $true
